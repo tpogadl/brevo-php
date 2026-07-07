@@ -17,10 +17,22 @@ class GetDomainConfigurationResponseDnsRecords extends JsonSerializableType
     public GetDomainConfigurationResponseDnsRecordsBrevoCode $brevoCode;
 
     /**
-     * @var GetDomainConfigurationResponseDnsRecordsDkimRecord $dkimRecord DKIM authentication record
+     * @var GetDomainConfigurationResponseDnsRecordsDkimRecord|null $dkimRecord DKIM authentication record
      */
     #[JsonProperty('dkim_record')]
-    public GetDomainConfigurationResponseDnsRecordsDkimRecord $dkimRecord;
+    public ?GetDomainConfigurationResponseDnsRecordsDkimRecord $dkimRecord;
+
+    /**
+     * @var GetDomainConfigurationResponseDnsRecordsDkimRecord $dkim1Record DKIM authentication record
+     */
+    #[JsonProperty('dkim1Record')]
+    public GetDomainConfigurationResponseDnsRecordsDkimRecord $dkim1Record;
+
+    /**
+     * @var GetDomainConfigurationResponseDnsRecordsDkimRecord $dkim2Record DKIM authentication record
+     */
+    #[JsonProperty('dkim2Record')]
+    public GetDomainConfigurationResponseDnsRecordsDkimRecord $dkim2Record;
 
     /**
      * @var GetDomainConfigurationResponseDnsRecordsDmarcRecord $dmarcRecord DMARC policy record
@@ -31,7 +43,9 @@ class GetDomainConfigurationResponseDnsRecords extends JsonSerializableType
     /**
      * @param array{
      *   brevoCode: GetDomainConfigurationResponseDnsRecordsBrevoCode,
-     *   dkimRecord: GetDomainConfigurationResponseDnsRecordsDkimRecord,
+     *   dkimRecord: GetDomainConfigurationResponseDnsRecordsDkimRecord|null,
+     *   dkim1Record: GetDomainConfigurationResponseDnsRecordsDkimRecord,
+     *   dkim2Record: GetDomainConfigurationResponseDnsRecordsDkimRecord,
      *   dmarcRecord: GetDomainConfigurationResponseDnsRecordsDmarcRecord,
      * } $values
      */
@@ -40,6 +54,8 @@ class GetDomainConfigurationResponseDnsRecords extends JsonSerializableType
     ) {
         $this->brevoCode = $values['brevoCode'];
         $this->dkimRecord = $values['dkimRecord'];
+        $this->dkim1Record = $values['dkim1Record'];
+        $this->dkim2Record = $values['dkim2Record'];
         $this->dmarcRecord = $values['dmarcRecord'];
     }
 
