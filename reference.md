@@ -1414,6 +1414,18 @@ $client->masterAccount->enableDisableSubAccountApplicationS(
 <dl>
 <dd>
 
+**$analytics:** `?bool` 
+
+Set this field to enable or disable Analytics on the
+sub-account. Requires the master account's plan to include
+Analytics; otherwise the call returns a 400 error.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **$automation:** `?bool` 
 
 Set this field to enable or disable Automation on the
@@ -5221,6 +5233,138 @@ $client->customObjects->batchDeleteObjectRecords(
 </dl>
 </details>
 
+<details><summary><code>$client-&gt;customObjects-&gt;getAssociatedRecords($objectType, $request) -> ?GetAssociatedRecordsResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+<Note title="Enterprise access only">Custom objects are only available to Enterprise plans.
+This feature is in beta. These are subject to change.</Note>
+Returns the records associated with a single source record. Associations of every type are returned together in one paginated list, ordered by association creation time with the most recently created association first.
+
+**Identifying the source record**
+Provide exactly one of `id`, `ext_id`, `email` or `sms`. Passing none of them, or more than one, returns `400`. `email` and `sms` are only accepted when `object_type` is `contact`; using either with any other object type returns `400`.
+
+**Object types**
+Use the object type exactly as it is defined in your account, for example `vehicle` for a custom object of that name, or `contact` for contacts. An object type that does not exist in your account returns `400`.
+
+**Filtering by associated object type**
+Use `type` to restrict the response to one or more associated object types, for example `?type=contact&type=garage`. Up to 5 types can be requested per call; more returns `400`. When `type` is omitted, associations of every type are returned.
+
+**Pagination**
+Results are returned 20 per page. The page size is fixed and cannot be changed. Increase `offset` by 20 to walk through the pages until `has_more` is `false`. An `offset` beyond the last record returns an empty `items` array with `has_more` set to `false`.
+
+**Working with contacts**
+- `contact` is supported both as the source `object_type` and as an associated object type.
+- An `id`, `ext_id`, `email` or `sms` that matches no contact returns `404`.
+- If several contacts share the same `ext_id`, `email` or `sms`, identify the contact by `id` to be sure of which one is used.
+- Contacts returned in `items` carry all of the contact's attributes, with attribute keys in lowercase — `email`, `first_name`, `last_name`, `sms`, `ext_id`, and any other contact attribute lowercased.
+- For contacts, `ext_id`, `created_at` and `updated_at` are not returned on `object`. A contact's external ID is available as `attributes.ext_id` when it is set.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```php
+$client->customObjects->getAssociatedRecords(
+    'vehicle',
+    new GetAssociatedRecordsRequest([
+        'id' => 16789,
+        'extId' => '507f1f77bc',
+        'email' => 'jane.doe@example.com',
+        'sms' => '33612345678',
+        'offset' => 0,
+    ]),
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**$objectType:** `string` — Object type of the source record, exactly as defined in your account. Accepts any object type defined in the account, for example a custom object type or `contact`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$id:** `?int` — Internal Brevo ID of the source record. Must be a positive integer. Provide exactly one of `id`, `ext_id`, `email` or `sms`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$extId:** `?string` — External ID of the source record in your system. Provide exactly one of `id`, `ext_id`, `email` or `sms`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$email:** `?string` — Email address of the source contact. Only accepted when `object_type` is `contact`. Provide exactly one of `id`, `ext_id`, `email` or `sms`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$sms:** `?string` — Phone number of the source contact, including the country code. It may be given with or without a leading `+`; percent-encode the `+` as `%2B`, because a literal `+` in a query string is read as a space. Only accepted when `object_type` is `contact`. Provide exactly one of `id`, `ext_id`, `email` or `sms`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$type:** `?string` — Restricts the response to the given associated object types. Repeat the parameter to request several types, for example `?type=contact&type=garage`. Maximum 5 types per call. Associations of every type are returned when omitted.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$offset:** `?int` — Number of records to skip before the first record of the page. Defaults to 0. Increase by 20 to fetch the next page.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Contacts
 <details><summary><code>$client-&gt;contacts-&gt;getContacts($request) -> ?GetContacts</code></summary>
 <dl>
@@ -5954,6 +6098,14 @@ $client->contacts->createDoiContact(
 <dd>
 
 **$attributes:** `?array` — Pass the set of attributes and their values. **These attributes must be present in your Brevo account**. For eg. **{'FNAME':'Elly', 'LNAME':'Roger', 'COUNTRIES': ['India','China']}**
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$contactPixelTrackingConsent:** `?bool` — Consent of the DOI recipient for open (pixel) and click tracking in the double opt-in confirmation email, resolved by the sender at send time. Considered only if the per-contact pixel tracking consent feature is enabled for your account. Pass `true` if this recipient has consented to open and click tracking, in which case the open pixel and tracked links identify the recipient. Pass `false` to anonymise the open and click events (counted in aggregate statistics only). If it is not passed, the recipient is treated as unknown consent status and the email is still sent (the open and click are anonymised unless your account tracks unknown-consent contacts). A value other than `true`/`false` is rejected. Ignored when the feature is not enabled for your account.
     
 </dd>
 </dl>
@@ -16392,6 +16544,46 @@ $client->emailCampaigns->createEmailCampaign(
 <dl>
 <dd>
 
+**$utmContent:** `?string` — Customize the utm_content value. Appears on outgoing tracking links alongside utm_campaign. Only alphanumeric characters and spaces are allowed
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$utmId:** `?string` — Customize the utm_id value. Appears on outgoing tracking links alongside utm_campaign. When omitted or empty, the utm_id entry from the account's global utm_settings is used if enabled; otherwise no utm_id parameter is emitted.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$utmMedium:** `?string` — Customize the utm_medium value. When omitted or empty, the utm_medium entry from the account's global utm_settings is used if set; otherwise the default `email` is used.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$utmSource:** `?string` — Customize the utm_source value. When omitted or empty, the utm_source entry from the account's global utm_settings is used if set; otherwise the account default (`brevo` or `sendinblue`) is used.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$utmTerm:** `?string` — Customize the utm_term value. Appears on outgoing tracking links alongside utm_campaign. Only alphanumeric characters and spaces are allowed
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **$winnerCriteria:** `?string` — Choose the metrics that will determinate the winning version. **Mandatory if _splitRule_ >= 1 and < 50**. If splitRule = 50, `winnerCriteria` is ignored if passed
     
 </dd>
@@ -16466,7 +16658,7 @@ $client->emailCampaigns->uploadImageToGallery(
 <dl>
 <dd>
 
-**$name:** `?string` — Name of the image.
+**$name:** `?string` — Name shown in your Brevo image gallery. Include the file extension, e.g. product-banner.png
     
 </dd>
 </dl>
@@ -16837,6 +17029,46 @@ $client->emailCampaigns->updateEmailCampaign(
 <dd>
 
 **$utmCampaign:** `?string` — Customize the utm_campaign value. If this field is empty, the campaign name will be used. Only alphanumeric characters and spaces are allowed
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$utmContent:** `?string` — Customize the utm_content value. Appears on outgoing tracking links alongside utm_campaign. Only alphanumeric characters and spaces are allowed
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$utmId:** `?string` — Customize the utm_id value. Appears on outgoing tracking links alongside utm_campaign. When omitted or empty, the utm_id entry from the account's global utm_settings is used if enabled; otherwise no utm_id parameter is emitted.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$utmMedium:** `?string` — Customize the utm_medium value. When omitted or empty, the utm_medium entry from the account's global utm_settings is used if set; otherwise the default `email` is used.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$utmSource:** `?string` — Customize the utm_source value. When omitted or empty, the utm_source entry from the account's global utm_settings is used if set; otherwise the account default (`brevo` or `sendinblue`) is used.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$utmTerm:** `?string` — Customize the utm_term value. Appears on outgoing tracking links alongside utm_campaign. Only alphanumeric characters and spaces are allowed
     
 </dd>
 </dl>
@@ -22295,7 +22527,7 @@ $client->transactionalEmails->sendTransacEmail(
 <dl>
 <dd>
 
-**$headers:** `?array` — Custom email headers (non-standard headers) to include in the email. The `sender.ip` header can be set to specify the IP address used for sending transactional emails (dedicated IP users only). Header names must use Title-Case-Format (words separated by hyphens with the first letter of each word capitalized). Headers not in this format are automatically converted. Standard email headers are not supported. Example: `{"sender.ip":"1.2.3.4", "X-Mailin-custom":"some_custom_value", "Idempotency-Key":"abc-123"}`
+**$headers:** `?array` — Custom email headers (non-standard headers) to include in the email. The `sender.ip` header can be set to specify the IP address used for sending transactional emails (dedicated IP users only). Header names must use Title-Case-Format (words separated by hyphens with the first letter of each word capitalized). Headers not in this format are automatically converted. Standard email headers are not supported. Example: `{"sender.ip":"1.2.3.4", "X-Mailin-custom":"some_custom_value", "IdempotencyKey":"abc-123"}`
     
 </dd>
 </dl>
@@ -24173,6 +24405,91 @@ $client->smsTemplates->getSmsTemplates(
 <dd>
 
 **$sort:** `?string` — Sort the results in the ascending/descending order of record creation. Default order is **descending** if `sort` is not passed
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## OAuth
+<details><summary><code>$client-&gt;oAuth-&gt;getOAuthM2MToken($request) -> ?GetOAuthM2MTokenResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Exchanges an app's client_id/client_secret for a short-lived access token using the OAuth 2.0 client_credentials grant (RFC 6749 §4.4). Tokens are valid for about one hour; there is no refresh token.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```php
+$client->oAuth->getOAuthM2MToken(
+    new GetOAuthM2MTokenRequest([
+        'grantType' => 'client_credentials',
+        'clientId' => 'client_id',
+        'clientSecret' => 'client_secret',
+    ]),
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**$grantType:** `string` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$clientId:** `string` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$clientSecret:** `string` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$scope:** `?string` — Space-separated list of requested scopes.
     
 </dd>
 </dl>
